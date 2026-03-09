@@ -46,10 +46,13 @@ class word_dict:
 
     def add_sequence(self, parent, child):
         result = self.sequence.get(parent)
+        print(f"add sequence result: {result}")
         if result is None:
-            self.sequence[parent] = list(child)
-        else:
-            self.sequence[parent] = result.append(child)
+            self.sequence[parent] = [child]
+        elif child not in result:
+            result.append(child)
+            self.sequence[parent] = result
+        print(f"new final sequence: {self.sequence[parent]}")
 
     def get_parents(self):
         return list(self.parents.items())
@@ -57,17 +60,26 @@ class word_dict:
     def get_children(self):
         return list(self.children.items())
 
-    def get_all(self):
-        return self.parents, self.children
     
     def get_random_child(self, parent):
-        children = [x[0] for x in self.get_children()]
-        print(children)
-        weights = [x[1] for x in self.get_children()]
-        print(weights)
-
-
+        children, weights = self.get_all_child(parent)
         return random.choices(children,weights)
+    
+    def get_all_child(self, parent):
+        if parent is not None:
+            children_to_avoid = self.sequence[parent]
+        else: 
+            children_to_avoid = []
+        print(children_to_avoid)
+        children = [x[0] for x in self.get_children() if x[0] not in children_to_avoid]
+        weights = [x[1] for x in self.get_children() if x[0] not in children_to_avoid]
+
+        if children[0] is None:
+            print("word and parent have no original combination")
+            children = [x[0] for x in self.get_children() if x[0] not in children]
+            weights = [x[1] for x in self.get_children() if x[0] not in children]
+             
+        return children, weights
     
 
 def main():
